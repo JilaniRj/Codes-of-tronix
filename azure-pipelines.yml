@@ -1,5 +1,5 @@
 trigger:
-- master  # You can change this to the branch you want to trigger the pipeline
+- master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -7,12 +7,15 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.x'  # Change this to the Python version you're using accordingly
+    versionSpec: '3.x'
     addToPath: true
 
 - script: |
     python -m pip install --upgrade pip
-  displayName: 'Upgrade pip'
+    # Install project dependencies if needed
+    # For example:
+    # python -m pip install package1 package2
+  displayName: 'Upgrade pip and install dependencies if needed'
 
 - script: |
     # Commands to build your application (if needed)
@@ -20,12 +23,12 @@ steps:
 
 - script: |
     # Commands to run unit tests
-    # Since you don't have a specific path, assume tests are in the root directory
+    # Let Python's unittest module discover and run tests automatically
     python -m unittest discover
   displayName: 'Run unit tests'
 
-- task: PublishBuildArtifacts@1
+- task: PublishTestResults@2
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
-    publishLocation: 'Container'
+    testResultsFiles: '**/TEST-*.xml'
+    testRunTitle: 'Unit Tests'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
